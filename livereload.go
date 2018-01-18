@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/concourse/concourse/src/github.com/gorilla/websocket"
 	"github.com/fsnotify/fsnotify"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -26,8 +27,9 @@ var (
 	DefaultLiveReloadConfig = LiveReloadConfig{
 		Skipper: middleware.DefaultSkipper,
 		Name:    os.Args[0],
-		Dir:     ".",
+		Dir:     "assets",
 	}
+	upgrader = websocket.Upgrader{}
 )
 
 func LiveReload() echo.MiddlewareFunc {
@@ -47,7 +49,9 @@ func LiveReloadWithConfig(config LiveReloadConfig) echo.MiddlewareFunc {
 			select {
 			case event := <-config.watcher.Events:
 				if event.Op&fsnotify.Write == fsnotify.Write {
-					lrs.Reload(event.Name, filepath.Ext(event.Name) == ".css")
+					if rel, err := filepath.Rel(config.Dir, event.Name); err == nil {
+						lrs.Reload("/"+filepath.ToSlash(rel), filepath.Ext(event.Name) == ".css")
+					}
 				}
 			}
 		}
@@ -67,11 +71,9 @@ func LiveReloadWithConfig(config LiveReloadConfig) echo.MiddlewareFunc {
 			p := c.Path()
 			if p == "/livereload.js" {
 				livereload.LivereloadScript(c.Response(), c.Request())
-				return
 			}
 			if p == "/livereload" {
 				lrs.ServeHTTP(c.Response(), c.Request())
-				return
 			}
 			return next(c)
 		}
