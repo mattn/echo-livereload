@@ -3,6 +3,7 @@ package livereload
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/concourse/concourse/src/github.com/gorilla/websocket"
 	"github.com/fsnotify/fsnotify"
@@ -50,7 +51,10 @@ func LiveReloadWithConfig(config LiveReloadConfig) echo.MiddlewareFunc {
 			case event := <-config.watcher.Events:
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					if rel, err := filepath.Rel(config.Dir, event.Name); err == nil {
-						lrs.Reload("/"+filepath.ToSlash(rel), filepath.Ext(event.Name) == ".css")
+						if !strings.HasPrefix(filepath.Base(rel), ".") {
+							println(filepath.Base(rel))
+							lrs.Reload("/"+filepath.ToSlash(rel), filepath.Ext(event.Name) == ".css")
+						}
 					}
 				}
 			}
