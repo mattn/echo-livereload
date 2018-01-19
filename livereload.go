@@ -52,7 +52,6 @@ func LiveReloadWithConfig(config LiveReloadConfig) echo.MiddlewareFunc {
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					if rel, err := filepath.Rel(config.Dir, event.Name); err == nil {
 						if !strings.HasPrefix(filepath.Base(rel), ".") {
-							println(filepath.Base(rel))
 							lrs.Reload("/"+filepath.ToSlash(rel), filepath.Ext(event.Name) == ".css")
 						}
 					}
