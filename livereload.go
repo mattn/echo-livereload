@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/concourse/concourse/src/github.com/gorilla/websocket"
+	"github.com/gorilla/websocket"
 	"github.com/fsnotify/fsnotify"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
