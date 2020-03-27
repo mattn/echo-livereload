@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"github.com/mattn/echo-livereload"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	livereload "github.com/mattn/echo-livereload"
 )
 
 func main() {
