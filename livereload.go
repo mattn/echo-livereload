@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fsnotify/fsnotify"
+	"github.com/gofsnotify/fsnotify"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -60,7 +60,7 @@ func LiveReloadWithConfig(config LiveReloadConfig) echo.MiddlewareFunc {
 		}
 	}()
 
-	err = config.watcher.Add(config.Dir)
+	err = config.watcher.Add(config.Dir, fsnotify.Write)
 	if err != nil {
 		panic("livereload: " + err.Error())
 	}
