@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gofsnotify/fsnotify"
+	"github.com/fswatcher/fswatcher"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -20,7 +20,7 @@ type (
 		Name string
 		Dir  string
 
-		watcher *fsnotify.Watcher
+		watcher *fswatcher.Watcher
 	}
 )
 
@@ -41,7 +41,7 @@ func LiveReloadWithConfig(config LiveReloadConfig) echo.MiddlewareFunc {
 	lrs := livereload.New(config.Name)
 
 	var err error
-	config.watcher, err = fsnotify.NewWatcher()
+	config.watcher, err = fswatcher.NewWatcher()
 	if err != nil {
 		panic("livereload: " + err.Error())
 	}
@@ -49,7 +49,7 @@ func LiveReloadWithConfig(config LiveReloadConfig) echo.MiddlewareFunc {
 		for {
 			select {
 			case event := <-config.watcher.Events:
-				if event.Op&fsnotify.Write == fsnotify.Write {
+				if event.Op&fswatcher.Write == fswatcher.Write {
 					if rel, err := filepath.Rel(config.Dir, event.Name); err == nil {
 						if !strings.HasPrefix(filepath.Base(rel), ".") {
 							lrs.Reload("/"+filepath.ToSlash(rel), filepath.Ext(event.Name) == ".css")
@@ -60,7 +60,7 @@ func LiveReloadWithConfig(config LiveReloadConfig) echo.MiddlewareFunc {
 		}
 	}()
 
-	err = config.watcher.Add(config.Dir, fsnotify.Write)
+	err = config.watcher.Add(config.Dir, fswatcher.Write)
 	if err != nil {
 		panic("livereload: " + err.Error())
 	}
